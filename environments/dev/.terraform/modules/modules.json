@@ -1,1 +1,1 @@
-{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"aws-infra","Source":"../../modules/eks","Dir":"../../modules/eks"}]}
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"aws-infra","Source":"../../modules/eks","Dir":"../../modules/eks"},{"Key":"eks","Source":"../../modules/eks","Dir":"../../modules/eks"},{"Key":"global-infra","Source":"../../modules/global-infra","Dir":"../../modules/global-infra"}]}

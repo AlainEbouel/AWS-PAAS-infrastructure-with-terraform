@@ -1,9 +1,6 @@
 *.key
 **/.terraform/*
-# *.tfstate.*
 
 *.tfstate
 *.tfstate.*
 *.tfvars
-*.terraform/terraform.tfstate
-**/terraform.tfstate

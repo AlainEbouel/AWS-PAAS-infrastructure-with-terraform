@@ -1,69 +1,102 @@
-resource "aws_vpc" "eks-vpc" {
-  cidr_block = "10.0.0.0/16"
+resource "aws_vpc" "global-infra" {
+  cidr_block = var.vpc-cidr
+  enable_dns_support = true
+  enable_dns_hostnames = true
 
   tags = {
-    Name = "main-vpc-${var.env}"
+    Name = "${var.module-name}-${var.env}"
   }
 }
 
-resource "aws_internet_gateway" "eks-vpc_igw" {
-  vpc_id = aws_vpc.eks-vpc.id
-
+resource "aws_eip" "eks_cluster" {
   tags = {
-    Name = "main-vpc-igw${var.env}"
+    Name = "${var.module-name}-${var.env}"
   }
 }
 
-resource "aws_route_table" "main_route_table" {
-  vpc_id = aws_vpc.eks-vpc.id
+resource "aws_nat_gateway" "eks_cluster" {
+  allocation_id = aws_eip.eks_cluster.id
+  subnet_id     = aws_subnet.public-global-infra["subnet1"].id
+
+  tags = {
+    Name = "${var.module-name}-${var.env}"
+  }
+
+  # To ensure proper ordering, it is recommended to add an explicit dependency
+  # on the Internet Gateway for the VPC.
+  depends_on = [aws_internet_gateway.global-infra]
+}
+
+resource "aws_route_table" "private-global-infra" {
+  vpc_id = aws_vpc.global-infra.id
 
   route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.eks-vpc_igw.id
+    cidr_block  = "0.0.0.0/0"
+    gateway_id = aws_nat_gateway.eks_cluster.id
   }
-
   tags = {
-    Name = "main-route-table-${var.env}"
+    Name = "private-${var.module-name}-${var.env}"
   }
 }
 
-resource "aws_subnet" "public-subnet" {
-  for_each                = var.public_subnets
-  vpc_id                  = aws_vpc.eks-vpc.id
-  cidr_block              = var.public_subnets[each.key].cidr_block
-  availability_zone       = var.public_subnets[each.key].AZ
+resource "aws_subnet" "private-global-infra" {
+  for_each                = var.private-subnets
+  vpc_id     = aws_vpc.global-infra.id
+  cidr_block = var.private-subnets[each.key].cidr_block
+  availability_zone       = var.private-subnets[each.key].AZ
+
+  tags = {
+    Name = "${var.module-name}-${var.private-subnets[each.key].name}"
+  }
+}
+
+resource "aws_route_table_association" "private-global-infra" {
+  for_each                = var.private-subnets
+  subnet_id      = aws_subnet.private-global-infra[each.key].id
+  route_table_id = aws_route_table.private-global-infra.id
+}
+
+resource "aws_internet_gateway" "global-infra" {
+  vpc_id = aws_vpc.global-infra.id
+
+  tags = {
+    Name = "${var.module-name}-${var.env}"
+  }
+}
+
+resource "aws_route_table" "public-global-infra" {
+  vpc_id = aws_vpc.global-infra.id
+
+  route {
+    cidr_block  = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.global-infra.id
+  }
+
+  tags = {
+    Name = "public-${var.module-name}-${var.env}"
+  }
+}
+
+resource "aws_subnet" "public-global-infra" {
+  for_each                = var.public-subnets
+  vpc_id                  = aws_vpc.global-infra.id
+  cidr_block              = var.public-subnets[each.key].cidr_block
+  availability_zone       = var.public-subnets[each.key].AZ
   map_public_ip_on_launch = true
 
   tags = {
-    Name = var.public_subnets[each.key].name
+    Name = "${var.module-name}-${var.public-subnets[each.key].name}"
   }
 }
 
-resource "aws_subnet" "private-subnet" {
-  for_each          = var.private_subnets
-  vpc_id            = aws_vpc.eks-vpc.id
-  cidr_block        = var.private_subnets[each.key].cidr_block
-  availability_zone = var.private_subnets[each.key].AZ
-
-  tags = {
-    Name = var.private_subnets[each.key].name
-  }
+resource "aws_route_table_association" "public-global-infra" {
+  for_each                = var.public-subnets
+  subnet_id      = aws_subnet.public-global-infra[each.key].id
+  route_table_id = aws_route_table.public-global-infra.id
 }
 
-resource "aws_route_table_association" "public-subnet-route_table-association" {
-  for_each       = var.public_subnets
-  subnet_id      = aws_subnet.public-subnet[each.key].id
-  route_table_id = aws_route_table.main_route_table.id
-}
-
-resource "aws_route_table_association" "private-subnet-route_table-association" {
-  for_each       = var.private_subnets
-  subnet_id      = aws_subnet.private-subnet[each.key].id
-  route_table_id = aws_route_table.main_route_table.id
-}
-
-resource "aws_network_acl" "public-NACL" {
-  vpc_id = aws_vpc.eks-vpc.id
+resource "aws_network_acl" "public-global-infra" {
+  vpc_id = aws_vpc.global-infra.id
 
   egress {
     protocol   = "-1"
@@ -84,14 +117,14 @@ resource "aws_network_acl" "public-NACL" {
   }
 
   tags = {
-    Name = "main-NACL-${var.env}"
+    Name = "${var.module-name}-${var.env}"
   }
 }
 
-resource "aws_network_acl_association" "public-subnet-NACL-association" {
-  for_each       = var.public_subnets
-  network_acl_id = aws_network_acl.public-NACL.id
-  subnet_id      = aws_subnet.public-subnet[each.key].id
+resource "aws_network_acl_association" "public-global-infra" {
+  for_each                = var.public-subnets
+  network_acl_id = aws_network_acl.public-global-infra.id
+  subnet_id      = aws_subnet.public-global-infra[each.key].id
 }
 
 

@@ -2,7 +2,7 @@ variable "env" {
   type = string
 }
 
-variable "private_subnets" {
+variable "private-subnets" {
   type    = map(map(string))
   default = {}
 }

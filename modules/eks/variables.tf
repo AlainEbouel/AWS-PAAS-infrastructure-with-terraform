@@ -2,12 +2,12 @@ variable "env" {
   type = string
 }
 
-variable "public_subnets" {
+variable "public-subnets" {
   type    = map(map(string))
   default = {}
 }
 
-variable "private_subnets" {
+variable "private-subnets" {
   type    = map(map(string))
   default = {}
 }
@@ -17,5 +17,9 @@ variable "vpc-cidr" {
 }
 
 variable "module-name" {
+  type = string
+}
+
+variable "aws-account" {
   type = string
 }
