@@ -1,1 +1,1 @@
-{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"aws-infra","Source":"../../modules/aws","Dir":"../../modules/aws"}]}
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"aws-infra","Source":"../../modules/eks","Dir":"../../modules/eks"}]}
