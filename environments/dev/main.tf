@@ -20,7 +20,7 @@ locals {
     vpc-cidr = "192.168.0.0/24"
     private-subnets = {
       "subnet1"={"name" = "private-1", "cidr_block" = "192.168.0.0/25", "AZ" = "ca-central-1a"},
-      "subnet2"={"name" = "private-1", "cidr_block" = "192.168.0.128/25", "AZ" = "ca-central-1b"},
+      "subnet2"={"name" = "private-2", "cidr_block" = "192.168.0.128/25", "AZ" = "ca-central-1b"},
     }
   }
 }
@@ -54,11 +54,15 @@ module "eks" {
 
 module "global-infra" {
   source = "../../modules/global-infra"
+  region = local.region
+  aws-account = local.aws-account
   module-name = local.global-infra-module.module-name
   env = local.env
   private-subnets = local.global-infra-module.private-subnets
   vpc-cidr = local.global-infra-module.vpc-cidr
   eks-cluster-security_group = module.eks.eks-cluster-security_groups
+  eks-cluster-vpc = module.eks.eks-cluster-vpc
+  eks-cluster-node-group-role = module.eks.eks-cluster-node-group-role
 }
 
 

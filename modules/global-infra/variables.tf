@@ -2,6 +2,14 @@ variable "env" {
   type = string
 }
 
+variable "aws-account" {
+  type = string
+}
+
+variable "region" {
+  type = string
+}
+
 variable "private-subnets" {
   type    = map(map(string))
   default = {}
@@ -16,5 +24,13 @@ variable "module-name" {
 }
 
 variable "eks-cluster-security_group" {
+  type = string
+}
+
+variable "eks-cluster-vpc" {
+  type = string
+}
+
+variable "eks-cluster-node-group-role" {
   type = string
 }

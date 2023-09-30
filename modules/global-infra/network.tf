@@ -65,7 +65,7 @@ resource "aws_route_table_association" "private-global-infra" {
 
 resource "aws_vpc_peering_connection" "eks-to-global" {
   peer_vpc_id = aws_vpc.global-infra.id
-  vpc_id = "vpc-0631063643bcd6f84"
+  vpc_id = var.eks-cluster-vpc
   auto_accept = true
 }
 
