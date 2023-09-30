@@ -47,13 +47,13 @@ module "eks" {
   vpc-cidr = local.eks-module.vpc-cidr
 }
 
-# module "global-infra" {
-#   source = "../../modules/global-infra"
-#   module-name = local.global-infra-module.module-name
-#   env = local.env
-#   private-subnets = local.eks-module.private-subnets
-#   vpc-cidr = local.global-infra-module.vpc-cidr
-# }
+module "global-infra" {
+  source = "../../modules/global-infra"
+  module-name = local.global-infra-module.module-name
+  env = local.env
+  private-subnets = local.eks-module.private-subnets
+  vpc-cidr = local.global-infra-module.vpc-cidr
+}
 
 
 # resource "aws_dynamodb_table" "terraform-state-lock" {

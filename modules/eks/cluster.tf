@@ -75,7 +75,7 @@ resource "aws_eks_cluster" "dev-cluster" {
   role_arn = aws_iam_role.eks-cluster.arn
 
   vpc_config {
-    subnet_ids = [for k, v in aws_subnet.private-global-infra : v.id]
+    subnet_ids = [for k, v in aws_subnet.private-eks-cluster : v.id]
   }
 
   # Ensure that IAM Role permissions are created before and deleted after EKS Cluster handling.
@@ -113,7 +113,7 @@ resource "aws_eks_node_group" "eks_cluster" {
   cluster_name    = aws_eks_cluster.dev-cluster.name
   node_group_name = "${var.module-name}-${var.env}"
   node_role_arn   = aws_iam_role.node-group.arn
-  subnet_ids      = [for k, v in aws_subnet.private-global-infra : v.id]
+  subnet_ids      = [for k, v in aws_subnet.private-eks-cluster : v.id]
 
   scaling_config {
     desired_size = 1
