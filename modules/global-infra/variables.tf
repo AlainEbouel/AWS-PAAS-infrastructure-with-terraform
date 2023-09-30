@@ -14,3 +14,7 @@ variable "vpc-cidr" {
 variable "module-name" {
   type = string
 }
+
+variable "eks-cluster-security_group" {
+  type = string
+}

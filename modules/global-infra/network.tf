@@ -21,7 +21,7 @@ resource "aws_subnet" "private-global-infra" {
   availability_zone       = var.private-subnets[each.key].AZ
 
   tags = {
-    Name = var.private-subnets[each.key].name
+    Name = "${var.module-name}-${var.private-subnets[each.key].name}"
   }
 }
 
@@ -63,5 +63,9 @@ resource "aws_route_table_association" "private-global-infra" {
 #   subnet_id      = aws_subnet.private-global-infra[each.key].id
 # }
 
-
+resource "aws_vpc_peering_connection" "eks-to-global" {
+  peer_vpc_id = aws_vpc.global-infra.id
+  vpc_id = "vpc-0631063643bcd6f84"
+  auto_accept = true
+}
 
