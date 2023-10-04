@@ -34,3 +34,13 @@ variable "eks-cluster-vpc" {
 variable "eks-cluster-node-group-role" {
   type = string
 }
+
+variable "final_snapshot_identifier" {
+  type = string
+  default = ""
+}
+
+variable "ecr-repos" {
+  type = map(map(string))
+  default = {}  
+}

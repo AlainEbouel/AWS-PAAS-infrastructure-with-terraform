@@ -17,10 +17,14 @@ locals {
 
   global-infra-module = {
     module-name = "global-infra"
-    vpc-cidr = "192.168.0.0/24"
+    vpc-cidr = "192.168.0.0/16"
     private-subnets = {
-      "subnet1"={"name" = "private-1", "cidr_block" = "192.168.0.0/25", "AZ" = "ca-central-1a"},
-      "subnet2"={"name" = "private-2", "cidr_block" = "192.168.0.128/25", "AZ" = "ca-central-1b"},
+      "subnet1"={"name" = "private-1", "cidr_block" = "192.168.1.0/24", "AZ" = "ca-central-1a"},
+      "subnet2"={"name" = "private-2", "cidr_block" = "192.168.2.0/24", "AZ" = "ca-central-1b"},
+      # "subnet3"={"name" = "private-3", "cidr_block" = "192.168.3.0/24", "AZ" = "ca-central-1d"},
+    }
+    ecr-repos = {
+      shopping-Portal = {name = "shopping-portal", mutability = "MUTABLE", scan_on_push = true}
     }
   }
 }
@@ -33,7 +37,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.0"
+      version = "~> 5.19.0"
     }
     kubernetes = {
       source = "hashicorp/kubernetes"
@@ -60,9 +64,10 @@ module "global-infra" {
   env = local.env
   private-subnets = local.global-infra-module.private-subnets
   vpc-cidr = local.global-infra-module.vpc-cidr
-  eks-cluster-security_group = module.eks.eks-cluster-security_groups
+  eks-cluster-security_group = can(module.eks.eks-cluster-security_groups) ? module.eks.eks-cluster-security_groups : ""
   eks-cluster-vpc = module.eks.eks-cluster-vpc
-  eks-cluster-node-group-role = module.eks.eks-cluster-node-group-role
+  eks-cluster-node-group-role = can(module.eks.eks-cluster-node-group-role) ? module.eks.eks-cluster-node-group-role : ""
+  ecr-repos = local.global-infra-module.ecr-repos
 }
 
 
