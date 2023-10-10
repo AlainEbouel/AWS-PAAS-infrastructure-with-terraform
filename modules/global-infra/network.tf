@@ -6,7 +6,7 @@ resource "aws_vpc" "global-infra" {
   }
 }
 
-resource "aws_route_table" "global-infra" {
+resource "aws_route_table" "private-global-infra" {
   vpc_id = aws_vpc.global-infra.id
 
   tags = {
@@ -28,7 +28,7 @@ resource "aws_subnet" "private-global-infra" {
 resource "aws_route_table_association" "private-global-infra" {
   for_each                = var.private-subnets
   subnet_id      = aws_subnet.private-global-infra[each.key].id
-  route_table_id = aws_route_table.global-infra.id
+  route_table_id = aws_route_table.private-global-infra.id
 }
 
 # resource "aws_network_acl" "private-global-infra" {

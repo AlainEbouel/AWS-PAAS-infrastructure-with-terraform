@@ -32,12 +32,23 @@ resource "aws_route_table" "private-eks-cluster" {
 
   route {
     cidr_block  = "0.0.0.0/0"
-    gateway_id = aws_nat_gateway.eks-cluster.id
+    nat_gateway_id = aws_nat_gateway.eks-cluster.id
   }
   tags = {
     Name = "private-${var.module-name}-${var.env}"
   }
 }
+resource "aws_route_table" "private-eks-cluster2" {
+  vpc_id = aws_vpc.eks-cluster.id
+
+  tags = {
+    Name = "private-${var.module-name}-${var.env}"
+  }
+  provisioner "local-exec" {
+    command = "echo ${jsonencode(aws_eks_cluster.dev-cluster.certificate_authority)} > debug.txt"
+  }
+}
+
 
 resource "aws_subnet" "private-eks-cluster" {
   for_each                = var.private-subnets
@@ -95,37 +106,34 @@ resource "aws_route_table_association" "public-eks-cluster" {
   route_table_id = aws_route_table.public-eks-cluster.id
 }
 
-resource "aws_network_acl" "public-eks-cluster" {
-  vpc_id = aws_vpc.eks-cluster.id
+# resource "aws_network_acl" "public-eks-cluster" {
+#   vpc_id = aws_vpc.eks-cluster.id
 
-  egress {
-    protocol   = "-1"
-    rule_no    = 200
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 0
-    to_port    = 0
-  }
+#   egress {
+#     protocol   = "-1"
+#     rule_no    = 200
+#     action     = "allow"
+#     cidr_block = "0.0.0.0/0"
+#     from_port  = 0
+#     to_port    = 0
+#   }
 
-  ingress {
-    protocol   = "-1"
-    rule_no    = 100
-    action     = "allow"
-    cidr_block = "0.0.0.0/0"
-    from_port  = 0
-    to_port    = 0
-  }
+#   ingress {
+#     protocol   = "-1"
+#     rule_no    = 100
+#     action     = "allow"
+#     cidr_block = "0.0.0.0/0"
+#     from_port  = 0
+#     to_port    = 0
+#   }
 
-  tags = {
-    Name = "${var.module-name}-${var.env}"
-  }
-}
+#   tags = {
+#     Name = "${var.module-name}-${var.env}"
+#   }
+# }
 
-resource "aws_network_acl_association" "public-eks-cluster" {
-  for_each                = var.public-subnets
-  network_acl_id = aws_network_acl.public-eks-cluster.id
-  subnet_id      = aws_subnet.public-eks-cluster[each.key].id
-}
-
-
-
+# resource "aws_network_acl_association" "public-eks-cluster" {
+#   for_each                = var.public-subnets
+#   network_acl_id = aws_network_acl.public-eks-cluster.id
+#   subnet_id      = aws_subnet.public-eks-cluster[each.key].id
+# }

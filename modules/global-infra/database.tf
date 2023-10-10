@@ -8,8 +8,8 @@ resource "aws_security_group" "mysql-sg" {
     from_port       = 0
     to_port         = 3306
     protocol        = "tcp"
-    # security_groups = [var.eks-cluster-security_group]
-    cidr_blocks = ["0.0.0.0/0"]
+    security_groups = [var.eks-cluster-security_group]
+    # cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -105,28 +105,28 @@ resource "aws_db_subnet_group" "rds-cluster" {
 #-----------------------------------------------
 
 # 
-resource "aws_db_instance" "mysql" {
-  allocated_storage = 20
-  backup_retention_period = 7
-  backup_window = "03:30-06:00"
-  ca_cert_identifier = "rds-ca-rsa4096-g1"#aws_acmpca_certificate.rds-cluster.id
-  db_name = "shoppingPortal"
-  db_subnet_group_name = aws_db_subnet_group.rds-cluster.name
-  deletion_protection = false # Set to true for production environment
-  engine = "mysql"
-  engine_version = "8.0"
-  identifier = "mysql-${var.env}"
-  instance_class = "db.t3.micro"
-  kms_key_id = aws_kms_key.rds-cluster.arn
-  maintenance_window = "sat:23:30-sun:03:00"
-  multi_az = false
-  network_type = "IPV4"
-  password = data.aws_ssm_parameter.rds-master-password.value
-  skip_final_snapshot = true
-  storage_encrypted = true
-  username = "admin${var.env}"
-  vpc_security_group_ids = [aws_security_group.mysql-sg.id]
-}
+# resource "aws_db_instance" "mysql" {
+#   allocated_storage = 20
+#   backup_retention_period = 7
+#   backup_window = "03:30-06:00"
+#   ca_cert_identifier = "rds-ca-rsa4096-g1"#aws_acmpca_certificate.rds-cluster.id
+#   db_name = "shoppingPortal"
+#   db_subnet_group_name = aws_db_subnet_group.rds-cluster.name
+#   deletion_protection = false # Set to true for production environment
+#   engine = "mysql"
+#   engine_version = "8.0"
+#   identifier = "mysql-${var.env}"
+#   instance_class = "db.t3.micro"
+#   kms_key_id = aws_kms_key.rds-cluster.arn
+#   maintenance_window = "sat:23:30-sun:03:00"
+#   multi_az = false
+#   network_type = "IPV4"
+#   password = data.aws_ssm_parameter.rds-master-password.value
+#   skip_final_snapshot = true
+#   storage_encrypted = true
+#   username = "admin${var.env}"
+#   vpc_security_group_ids = [aws_security_group.mysql-sg.id]
+# }
 
 # resource "aws_rds_cluster" "mysql" {
 #   allocated_storage = 20

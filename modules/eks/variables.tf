@@ -2,6 +2,9 @@ variable "env" {
   type = string
 }
 
+variable "region" {
+  type = string
+}
 variable "public-subnets" {
   type    = map(map(string))
   default = {}

@@ -8,6 +8,6 @@ resource "aws_s3_bucket" "global-infra" {
 }
 
 resource "random_integer" "bucket-id" {
-  max = 8
-  min = 8
+  min = 10000000
+  max = 99999999
 }

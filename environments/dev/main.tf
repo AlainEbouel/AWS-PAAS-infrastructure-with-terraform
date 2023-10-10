@@ -11,7 +11,7 @@ locals {
       "subnet2" = {"name" = "private-2", "cidr_block" = "10.0.1.0/24", "AZ" = "ca-central-1b"}
     }
     public-subnets = {
-      "subnet1" = { "name" = "public-1", "cidr_block" = "10.0.2.0/24", "AZ" = "ca-central-1d" }
+      "subnet1" = { "name" = "public-1", "cidr_block" = "10.0.2.0/24", "AZ" = "ca-central-1a" }
     }
   }
 
@@ -27,10 +27,18 @@ locals {
       shopping-Portal = {name = "shopping-portal", mutability = "MUTABLE", scan_on_push = true}
     }
   }
+  jenkins = {
+    module-name = "jenkins"
+  }
+
 }
 
 provider "aws" {
   region = local.region
+}
+
+provider "kubernetes" {
+  config_path = "~/pratiques/.kube/config"
 }
 
 terraform {
@@ -50,6 +58,7 @@ module "eks" {
   source = "../../modules/eks"
   module-name = local.eks-module.module-name
   env = local.env
+  region = local.region
   aws-account = local.aws-account
   public-subnets = local.eks-module.public-subnets
   private-subnets = local.eks-module.private-subnets
@@ -68,6 +77,22 @@ module "global-infra" {
   eks-cluster-vpc = module.eks.eks-cluster-vpc
   eks-cluster-node-group-role = can(module.eks.eks-cluster-node-group-role) ? module.eks.eks-cluster-node-group-role : ""
   ecr-repos = local.global-infra-module.ecr-repos
+}
+
+module "shopping-portal" {
+  source = "../../modules/shopping-portal"
+  module-name = local.eks-module.module-name
+  env = local.env
+  eks_ca_cert = module.eks.eks_ca_cert
+  eks_cluster_endpoint = module.eks.eks-cluster-endpoint
+  eks_cluster_name = module.eks.eks_cluster_name
+}
+
+module "jenkins" {
+  source = "../../modules/jenkins"
+  eks_cluster_name = module.eks.eks_cluster_name
+  module-name = local.jenkins.module-name
+  env = local.env
 }
 
 
