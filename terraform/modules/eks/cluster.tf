@@ -30,13 +30,13 @@ resource "aws_iam_role_policy_attachment" "eks-vpc-resource-Controller" {
 
 data "aws_iam_policy_document" "eks_cluster" {
   statement {
-    actions = ["*"]
-    resources = [ "*" ]
-    effect = "Allow"
+    actions   = ["*"]
+    resources = ["*"]
+    effect    = "Allow"
     principals {
-      type = "AWS"
+      type        = "AWS"
       identifiers = ["arn:aws:iam::${var.aws-account}:root"]
-    }    
+    }
   }
   statement {
     sid = "Kms encryption"
@@ -47,10 +47,10 @@ data "aws_iam_policy_document" "eks_cluster" {
       "kms:GenerateDataKey*",
       "kms:DescribeKey"
     ]
-    resources = [ "*" ]
-    effect = "Allow"
+    resources = ["*"]
+    effect    = "Allow"
     principals {
-      type = "AWS"
+      type        = "AWS"
       identifiers = ["arn:aws:iam::${var.aws-account}:role/${aws_iam_role.eks-cluster.name}"]
     }
   }
@@ -59,7 +59,7 @@ data "aws_iam_policy_document" "eks_cluster" {
 resource "aws_kms_key" "eks-cluster" {
   description             = "KMS key for the ${var.env} EKS cluster"
   deletion_window_in_days = 7
-  tags = { 
+  tags = {
     name = "${var.module-name}-${var.env}"
   }
   policy = data.aws_iam_policy_document.eks_cluster.json
@@ -95,24 +95,27 @@ resource "aws_eks_cluster" "dev-cluster" {
   }
 }
 
-resource "aws_iam_role" "eks-cluster-temdsdpsappppp" {
-  name = "eks-Cluster-tppddappsdsppppp"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Sid    = ""
-        Principal = {
-          Service = "eks.amazonaws.com"
-        }
-      },
-    ]
-  })
-  provisioner "local-exec" {
-    command = "echo ${jsonencode(data.aws_instances.node-group-instances)} > debug2.txt "
+/*Creating .kube/config file to allow terraform to provisionne  resource in the cluster*/
+resource "null_resource" "set-kubeconfig-file" {
+  triggers = {
+    eks-cluster-id = aws_eks_cluster.dev-cluster.name
   }
+  provisioner "local-exec" {
+    command = "aws eks update-kubeconfig --region ${var.region} --name ${aws_eks_cluster.dev-cluster.name} --kubeconfig='~/pratiques/.kube/config'"
+  }
+  provisioner "local-exec" {
+    command = "echo ${jsonencode(aws_eks_cluster.dev-cluster)} > cluster.txt "
+  }
+}
 
+resource "null_resource" "set-kubeconfig-file2" {
+  triggers = {
+    eks-cluster-id = aws_eks_cluster.dev-cluster.name
+  }
+  provisioner "local-exec" {
+    command = "aws eks update-kubeconfig --region ${var.region} --name ${aws_eks_cluster.dev-cluster.name} --kubeconfig='~/pratiques/.kube/config'"
+  }
+  provisioner "local-exec" {
+    command = "echo ${jsonencode(aws_eks_cluster.dev-cluster)} > cluster.txt "
+  }
 }

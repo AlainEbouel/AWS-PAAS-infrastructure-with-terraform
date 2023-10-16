@@ -15,7 +15,7 @@ output "eks-cluster-vpc" {
 }
 
 output "eks-cluster-node-group-role" {
-  value = aws_iam_role.node-group.name  
+  value = aws_iam_role.node-group.name
 }
 
 output "eks_ca_cert" {
@@ -23,4 +23,8 @@ output "eks_ca_cert" {
 }
 output "eks_cluster_name" {
   value = aws_eks_cluster.dev-cluster.name
+}
+
+output "eks-node-group-name" {
+  value = aws_eks_node_group.eks_cluster.node_group_name
 }

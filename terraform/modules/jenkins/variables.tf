@@ -9,3 +9,7 @@ variable "env" {
 variable "eks_cluster_name" {
   type = string
 }
+
+variable "eks-node-group-name" {
+  type = string
+}

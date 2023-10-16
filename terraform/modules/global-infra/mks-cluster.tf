@@ -32,7 +32,7 @@
 #         volume_size = 10
 #       }
 #     }
-    
+
 #   }
 #   encryption_info {
 #     encryption_in_transit {
@@ -200,7 +200,7 @@
 
 # resource "aws_instance" "msk-client" {
 #   ami           = "ami-0940df33750ae6e7f"
-  
+
 #   instance_type = "t2.micro"
 #   vpc_security_group_ids = [aws_security_group.msk-client-ec2-sg.id]
 #   key_name = data.aws_key_pair.progi-laptop.key_name

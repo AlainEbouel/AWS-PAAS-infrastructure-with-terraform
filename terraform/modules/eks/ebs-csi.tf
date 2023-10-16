@@ -13,28 +13,28 @@ resource "aws_iam_openid_connect_provider" "eks-iam-oidc" {
 data "aws_iam_policy_document" "ebs-csi" {
   statement {
     actions = ["sts:AssumeRoleWithWebIdentity"]
-    effect = "Allow"
+    effect  = "Allow"
     principals {
-      type = "Federated"
+      type        = "Federated"
       identifiers = [aws_iam_openid_connect_provider.eks-iam-oidc.arn]
-      
+
     }
     condition {
-      test = "StringEquals"
-      variable =  "${aws_iam_openid_connect_provider.eks-iam-oidc.url}:aud"
-      values = ["sts.amazonaws.com"]
+      test     = "StringEquals"
+      variable = "${aws_iam_openid_connect_provider.eks-iam-oidc.url}:aud"
+      values   = ["sts.amazonaws.com"]
     }
     condition {
-      test = "StringEquals"
-      variable =  "${aws_iam_openid_connect_provider.eks-iam-oidc.url}:sub"
-      values = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
+      test     = "StringEquals"
+      variable = "${aws_iam_openid_connect_provider.eks-iam-oidc.url}:sub"
+      values   = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
     }
   }
 
 }
 
 resource "aws_iam_role" "ebs-csi" {
-  name = "KS_EBS_CSI_DriverRole"
+  name               = "KS_EBS_CSI_DriverRole"
   assume_role_policy = data.aws_iam_policy_document.ebs-csi.json
 }
 
@@ -44,7 +44,10 @@ resource "aws_iam_role_policy_attachment" "AmazonEBSCSIDriverPolicy" {
 }
 
 resource "aws_eks_addon" "ebs-csi" {
-  cluster_name = aws_eks_cluster.dev-cluster.name
-  addon_name   = "aws-ebs-csi-driver"
+  cluster_name             = aws_eks_cluster.dev-cluster.name
+  addon_name               = "aws-ebs-csi-driver"
   service_account_role_arn = aws_iam_role.ebs-csi.arn
+
+  /*# Temp config because I have to recreate the eks cluster many times.*/
+  depends_on = [ null_resource.set-kubeconfig-file ]
 }

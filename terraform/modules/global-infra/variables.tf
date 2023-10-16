@@ -36,6 +36,6 @@ variable "eks-cluster-node-group-role" {
 }
 
 variable "ecr-repos" {
-  type = map(map(string))
-  default = {}  
+  type    = map(map(string))
+  default = {}
 }

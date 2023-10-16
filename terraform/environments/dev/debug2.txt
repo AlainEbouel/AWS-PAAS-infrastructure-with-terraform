@@ -1,0 +1,1 @@
+{filter:null,id:ca-central-1,ids:[i-0b8a700f2b3823ba4],instance_state_names:[running],instance_tags:{eks:nodegroup-name:eks-cluster-dev},ipv6_addresses:[],private_ips:[10.0.0.14],public_ips:[],timeouts:null}

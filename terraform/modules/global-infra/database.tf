@@ -44,13 +44,13 @@ resource "aws_iam_role" "rds-cluster" {
 
 data "aws_iam_policy_document" "rds-cluster" {
   statement {
-    actions = ["*"]
-    resources = [ "*" ]
-    effect = "Allow"
+    actions   = ["*"]
+    resources = ["*"]
+    effect    = "Allow"
     principals {
-      type = "AWS"
+      type        = "AWS"
       identifiers = ["arn:aws:iam::${var.aws-account}:root"]
-    }    
+    }
   }
   statement {
     sid = "Kms encryption"
@@ -61,10 +61,10 @@ data "aws_iam_policy_document" "rds-cluster" {
       "kms:GenerateDataKey*",
       "kms:DescribeKey"
     ]
-    resources = [ "*" ]
-    effect = "Allow"
+    resources = ["*"]
+    effect    = "Allow"
     principals {
-      type = "AWS"
+      type        = "AWS"
       identifiers = ["arn:aws:iam::${var.aws-account}:role/${aws_iam_role.rds-cluster.name}"]
     }
   }
@@ -79,7 +79,7 @@ data "aws_iam_policy_document" "rds-cluster" {
 resource "aws_kms_key" "rds-cluster" {
   description             = "KMS key for the ${var.env} rds cluster"
   deletion_window_in_days = 7
-  tags = { 
+  tags = {
     name = "${var.module-name}-${var.env}"
   }
   policy = data.aws_iam_policy_document.rds-cluster.json
@@ -97,7 +97,7 @@ data "aws_ssm_parameter" "rds-master-password" {
 
 resource "aws_db_subnet_group" "rds-cluster" {
   name       = "rds-cluster"
-  subnet_ids = [for k,v in aws_subnet.private-global-infra: v.id]
+  subnet_ids = [for k, v in aws_subnet.private-global-infra : v.id]
 }
 
 
@@ -169,7 +169,7 @@ resource "aws_db_subnet_group" "rds-cluster" {
 # #   allocated_storage = 10
 #   db_subnet_group_name = aws_db_subnet_group.rds-cluster.name
 #   # availability_zones =  [for k,v in var.private-subnets: v.AZ]#[aws_subnet.private-global-infra["subnet1"].id]
-  
+
 #   ca_cert_identifier = aws_acmpca_certificate.rds-cluster.id
 #   cluster_identifier = aws_rds_cluster.mysql.cluster_identifier
 

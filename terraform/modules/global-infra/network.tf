@@ -15,10 +15,10 @@ resource "aws_route_table" "private-global-infra" {
 }
 
 resource "aws_subnet" "private-global-infra" {
-  for_each                = var.private-subnets
-  vpc_id     = aws_vpc.global-infra.id
-  cidr_block = var.private-subnets[each.key].cidr_block
-  availability_zone       = var.private-subnets[each.key].AZ
+  for_each          = var.private-subnets
+  vpc_id            = aws_vpc.global-infra.id
+  cidr_block        = var.private-subnets[each.key].cidr_block
+  availability_zone = var.private-subnets[each.key].AZ
 
   tags = {
     Name = "${var.module-name}-${var.private-subnets[each.key].name}"
@@ -26,7 +26,7 @@ resource "aws_subnet" "private-global-infra" {
 }
 
 resource "aws_route_table_association" "private-global-infra" {
-  for_each                = var.private-subnets
+  for_each       = var.private-subnets
   subnet_id      = aws_subnet.private-global-infra[each.key].id
   route_table_id = aws_route_table.private-global-infra.id
 }
@@ -65,7 +65,7 @@ resource "aws_route_table_association" "private-global-infra" {
 
 resource "aws_vpc_peering_connection" "eks-to-global" {
   peer_vpc_id = aws_vpc.global-infra.id
-  vpc_id = var.eks-cluster-vpc
+  vpc_id      = var.eks-cluster-vpc
   auto_accept = true
 }
 
