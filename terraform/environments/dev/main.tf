@@ -89,13 +89,13 @@ module "shopping-portal" {
   eks_cluster_name     = module.eks.eks_cluster_name
 }
 
-module "jenkins" {
-  source           = "../../modules/jenkins"
-  eks_cluster_name = module.eks.eks_cluster_name
-  module-name      = local.jenkins.module-name
-  env              = local.env
-  eks-node-group-name = module.eks.eks-node-group-name
-}
+# module "jenkins" {
+#   source           = "../../modules/jenkins"
+#   eks_cluster_name = module.eks.eks_cluster_name
+#   module-name      = local.jenkins.module-name
+#   env              = local.env
+#   eks-node-group-name = module.eks.eks-node-group-name
+# }
 
 
 # resource "aws_dynamodb_table" "terraform-state-lock" {

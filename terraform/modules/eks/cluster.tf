@@ -108,14 +108,14 @@ resource "null_resource" "set-kubeconfig-file" {
   }
 }
 
-resource "null_resource" "set-kubeconfig-file2" {
-  triggers = {
-    eks-cluster-id = aws_eks_cluster.dev-cluster.name
-  }
-  provisioner "local-exec" {
-    command = "aws eks update-kubeconfig --region ${var.region} --name ${aws_eks_cluster.dev-cluster.name} --kubeconfig='~/pratiques/.kube/config'"
-  }
-  provisioner "local-exec" {
-    command = "echo ${jsonencode(aws_eks_cluster.dev-cluster)} > cluster.txt "
-  }
-}
+# resource "null_resource" "set-kubeconfig-file2" {
+#   triggers = {
+#     eks-cluster-id = aws_eks_cluster.dev-cluster.name
+#   }
+#   provisioner "local-exec" {
+#     command = "aws eks update-kubeconfig --region ${var.region} --name ${aws_eks_cluster.dev-cluster.name} --kubeconfig='~/pratiques/.kube/config'"
+#   }
+#   provisioner "local-exec" {
+#     command = "echo ${jsonencode(aws_eks_cluster.dev-cluster)} > cluster.txt "
+#   }
+# }
