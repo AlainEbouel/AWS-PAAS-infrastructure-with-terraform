@@ -16,8 +16,10 @@ pipeline {
             steps{
                 echo 'CC=CC'
                 echo "CC=${env.CC}"
-                echo "DEBUG_FLAGS=${env.DEBUG_FLAGS}"
-               
+                echo "DEBUG_FLAGS=$DEBUG_FLAGS"
+                """
+                    ${sh date}
+                """               
             }
             
         }
