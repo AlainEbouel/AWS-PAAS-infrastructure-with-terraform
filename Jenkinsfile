@@ -15,7 +15,9 @@ pipeline {
         stage('*************stage number 2 ******************'){
             steps{
                 echo 'CC=CC'
-                echo "DEBUG_FLAGS=${DEBUG_FLAGS}"
+                echo "CC=${env.CC}"
+                echo "DEBUG_FLAGS=${env.DEBUG_FLAGS}"
+               
             }
             
         }
