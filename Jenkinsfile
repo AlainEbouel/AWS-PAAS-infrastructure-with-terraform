@@ -17,9 +17,7 @@ pipeline {
                 echo 'CC=CC'
                 echo "CC=$CC"
                 echo "DEBUG_FLAGS=${env.DEBUG_FLAGS}"
-                """
-                    ${sh date}
-                """               
+     
             }
             
         }
