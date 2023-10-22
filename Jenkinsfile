@@ -15,15 +15,14 @@ pipeline {
         // }
         stage('*************stage number 2 ******************'){
             steps{
-                echo 'CC=CC'
-                echo "CC=$CC"
-                echo "DEBUG_FLAGS=${env.DEBUG_FLAGS}"
-                echo 'creds = ${env.GIT_HUB_CREDENTIALS}'
-                echo 'username = $GIT_HUB_CREDENTIALS_USR'
-                echo 'password = $GIT_HUB_CREDENTIALS_PWS'  
+         
+                echo "creds = ${env.GIT_HUB_CREDENTIALS}"
+                echo "username = $GIT_HUB_CREDENTIALS_USR"
+                echo "password = $GIT_HUB_CREDENTIALS_PWS"  
                 echo '--------------------------------------------------------------------------'
-                echo "password = $CC" 
-                echo "CC=$GIT_HUB_CREDENTIALS_PSW"
+                // echo "password = $CC" 
+                // echo "CC=$GIT_HUB_CREDENTIALS_PSW"
+                // echo "CC=$GIT_HUB_CREDENTIALS_PSW"
             }
             
         }
