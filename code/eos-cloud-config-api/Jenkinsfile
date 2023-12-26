@@ -5,7 +5,7 @@ pipeline {
     stages {
         stage('build'){
             steps{
-              // sh ''
+              sh 'env | grep -i java'
               sh 'cd code/eos-cloud-config-api && ls -l'
               sh 'mvn clean verify'
               // withMaven (
