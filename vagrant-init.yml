@@ -1,0 +1,52 @@
+---
+- name: "Provision vagrant"
+  hosts: all
+  tasks:
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - iptables-persistent
+          - bash-completion
+        state: present
+        update_cache: true
+      become: true
+
+    - name: Setup controller ssh key
+      ansible.posix.authorized_key:
+        user: vagrant
+        state: present
+        key: ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINxnLR9pa1jpI0NAUfsWUx64xvrMMmBX7/iGkPUadYBo controller
+
+    - name: Setup basic iptables
+      ansible.builtin.copy:
+        content: |
+          *filter
+          :INPUT DROP [0:0]
+          :FORWARD DROP [0:0]
+          :OUTPUT ACCEPT [0:0]
+          :TCP - [0:0]
+          :UDP - [0:0]
+          -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+          -A INPUT -i lo -j ACCEPT
+          -A INPUT -m conntrack --ctstate INVALID -j DROP
+          -A INPUT -p icmp -m icmp --icmp-type 8 -m conntrack --ctstate NEW -j ACCEPT
+          -A INPUT -p udp -m conntrack --ctstate NEW -j UDP
+          -A INPUT -p tcp -m tcp --tcp-flags FIN,SYN,RST,ACK SYN -m conntrack --ctstate NEW -j TCP
+          -A INPUT -p udp -j REJECT --reject-with icmp-port-unreachable
+          -A INPUT -p tcp -j REJECT --reject-with tcp-reset
+          -A INPUT -j REJECT --reject-with icmp-proto-unreachable
+          -A TCP -p tcp -m tcp --dport 22 -j ACCEPT
+          COMMIT
+        dest: /etc/iptables/rules.v4
+      register: iptables
+      become: true
+
+    - name: Apply basic iptables
+      ansible.builtin.shell: "{% if ansible_distribution_major_version|int >= 20 %}/usr{% endif %}/sbin/iptables-restore < /etc/iptables/rules.v4"
+      become: true
+      when: iptables.changed
+
+    # - name: Apply basic iptables
+    #   ansible.builtin.shell: DEBIAN_FRONTEND=noninteractive dpkg-reconfigure iptables-persistent
+    #   become: true
+    #   when: iptables.changed and ansible_distribution_major_version|int < 20

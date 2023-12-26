@@ -1,0 +1,40 @@
+---
+- name: "Provision vagrant"
+  hosts: all
+  tasks:
+    - name: Create .ssh folder
+      file:
+        path: /home/vagrant/.ssh
+        owner: vagrant
+        group: vagrant
+        mode: 0700
+        state: directory
+
+    - name: Setup ssh private key
+      copy:
+        dest: /home/vagrant/.ssh/id_ed25519
+        content: |
+          -----BEGIN OPENSSH PRIVATE KEY-----
+          b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+          QyNTUxOQAAACDcZy0faWtY6SNDQFH7FlMeuMb6zDJgV+/4hpD1GnWAaAAAAKCwCJ2MsAid
+          jAAAAAtzc2gtZWQyNTUxOQAAACDcZy0faWtY6SNDQFH7FlMeuMb6zDJgV+/4hpD1GnWAaA
+          AAAEA049/FyviXeNOuOLc44sLomWKkR+BHqeO3lUHEFPy3sdxnLR9pa1jpI0NAUfsWUx64
+          xvrMMmBX7/iGkPUadYBoAAAAFm1jZXNhcmluZUBwcm9kZXZtYXJjZXMBAgMEBQYH
+          -----END OPENSSH PRIVATE KEY-----
+        owner: vagrant
+        group: vagrant
+        mode: 0600
+
+    - name: Install dependencies
+      apt:
+        name:
+          - python3-pip
+        state: present
+        update_cache: yes
+      become: yes
+
+    - name: Install ansible
+      pip:
+        name:
+          - ansible==2.10
+        state: present
