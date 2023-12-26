@@ -5,7 +5,7 @@ pipeline {
         stage('build'){
  
             steps{
-
+              load "$JENKINS_HOME/.profile"
               // sh 'cat ~/.profile'
               // sh 'export M2_HOME=/opt/apache-maven-3.9.6'     
               // sh 'export M2=$M2_HOME/bin'
