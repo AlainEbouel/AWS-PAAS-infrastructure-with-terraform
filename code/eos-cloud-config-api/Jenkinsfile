@@ -5,7 +5,7 @@ pipeline {
     stages {
         stage('build'){
             steps{
-              sh 'env | grep -i M2'
+
               sh 'env'
 
               sh 'cd code/eos-cloud-config-api && ls -l'
