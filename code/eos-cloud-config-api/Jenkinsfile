@@ -5,8 +5,11 @@ pipeline {
     stages {
         stage('build'){
             steps{
+              sh 'cd code/eos-cloud-config-api'
+            }
+            steps{
               withMaven (
-                mavenLocalRepo: 'code/eos-cloud-config-api'
+                // mavenLocalRepo: 'code/eos-cloud-config-api'
               ){
                 sh "mvn clean verify"
               }
