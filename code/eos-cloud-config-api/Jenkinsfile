@@ -1,0 +1,17 @@
+pipeline {
+    agent {label 'agent'}
+    // environment {
+    // }
+    stages {
+        stage('build'){
+            steps{
+              withMaven (
+                mavenLocalRepo: 'code/eos-cloud-config-api'
+              ){
+                sh "mvn clean verify"
+              }
+            }
+            
+        }
+    }
+}
