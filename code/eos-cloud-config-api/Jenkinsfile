@@ -1,15 +1,18 @@
 pipeline {
     agent {label 'agent'}
-    // environment {
-    // }
+    environment {
+      M2_HOME=/opt/apache-maven-3.9.6 
+      M2=/opt/apache-maven-3.9.6/bin
+      PATH=$M2:$PATH
+    }
     stages {
         stage('build'){
             steps{
 
-              sh 'cat ~/.profile'
-              sh 'export M2_HOME=/opt/apache-maven-3.9.6'     
-              sh 'export M2=$M2_HOME/bin'
-              sh 'export PATH=$M2:$PATH'
+              // sh 'cat ~/.profile'
+              // sh 'export M2_HOME=/opt/apache-maven-3.9.6'     
+              // sh 'export M2=$M2_HOME/bin'
+              // sh 'export PATH=$M2:$PATH'
 
               sh 'env'
               sh 'cd code/eos-cloud-config-api'
