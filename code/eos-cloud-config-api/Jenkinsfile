@@ -6,8 +6,9 @@ pipeline {
         stage('build'){
             steps{
 
-              sh '/usr/bin/env'
-
+              sh 'cat ~/.profile'
+              sh 'sourcecat ~/profile'
+              sh 'env'
               sh 'cd code/eos-cloud-config-api'
               // sh 'mvn clean verify'
               withMaven (
