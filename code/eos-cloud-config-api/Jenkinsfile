@@ -4,11 +4,9 @@ pipeline {
     stages {
         stage('build'){
             steps{
-              sh 'env'
               sh 'cd code/eos-cloud-config-api'
-              sh 'mvn clean verify' //-f code/eos-cloud-config-api/pom.xml'             
-            }
-            
+              sh 'mvn clean verify -f code/eos-cloud-config-api/pom.xml'             
+            }            
         }
     }
 }
