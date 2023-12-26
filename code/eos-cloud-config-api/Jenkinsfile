@@ -6,7 +6,7 @@ pipeline {
         stage('build'){
             steps{
 
-              sh 'env'
+              sh '/usr/bin/env'
 
               sh 'cd code/eos-cloud-config-api'
               // sh 'mvn clean verify'
