@@ -8,7 +8,8 @@ pipeline {
               sh 'env | grep -i java'
               sh 'pwd'
               sh 'export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64'
-              sh 'echo $JAVA_HOME'
+              sh 'echo $M2_HOME'
+              sh 'export M2_HOME=/opt/apache-maven-3.9.6'
               sh 'cd code/eos-cloud-config-api && ls -l'
               sh 'mvn clean verify'
               // withMaven (
