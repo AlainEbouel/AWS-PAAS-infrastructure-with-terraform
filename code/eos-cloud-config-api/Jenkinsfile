@@ -7,7 +7,10 @@ pipeline {
             steps{
 
               sh 'cat ~/.profile'
-              sh 'source ~/.profile'
+              sh 'export M2_HOME=/opt/apache-maven-3.9.6'     
+              sh 'export M2=$M2_HOME/bin'
+              sh 'export PATH=$M2:$PATH'
+
               sh 'env'
               sh 'cd code/eos-cloud-config-api'
               // sh 'mvn clean verify'
