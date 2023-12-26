@@ -6,6 +6,8 @@ pipeline {
         stage('build'){
             steps{
               sh 'env | grep -i java'
+              sh 'pwd'
+              sh 'whoami'
               sh 'echo $JAVA_HOME'
               sh 'cd code/eos-cloud-config-api && ls -l'
               sh 'mvn clean verify'
