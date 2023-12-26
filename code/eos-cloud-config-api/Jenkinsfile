@@ -14,12 +14,11 @@ pipeline {
               // sh 'export M2_HOME=/opt/apache-maven-3.9.6'     
               // sh 'export M2=$M2_HOME/bin'
               // sh 'export PATH=$M2:$PATH'
-              sh '~/.profile'
               sh 'env'
               sh 'cd code/eos-cloud-config-api'
               // sh 'mvn clean verify'
               withMaven (
-                // mavenLocalRepo: 'code/eos-cloud-config-api'
+                mavenLocalRepo: 'code/eos-cloud-config-api'
               ){
                 sh "mvn clean verify"
               }
