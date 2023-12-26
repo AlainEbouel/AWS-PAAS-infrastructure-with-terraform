@@ -8,7 +8,7 @@ pipeline {
 
               sh 'env'
 
-              sh 'cd code/eos-cloud-config-api && ls -l'
+              sh 'cd code/eos-cloud-config-api'
               sh 'mvn clean verify'
               // withMaven (
               //   // mavenLocalRepo: 'code/eos-cloud-config-api'
