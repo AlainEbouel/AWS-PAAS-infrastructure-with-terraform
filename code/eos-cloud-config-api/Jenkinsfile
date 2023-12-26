@@ -3,9 +3,11 @@ pipeline {
 
     stages {
         stage('build'){
- 
+           environment {
+            PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+           }
             steps{
-              load "$JENKINS_HOME/.profile"
+
               // sh 'cat ~/.profile'
               // sh 'export M2_HOME=/opt/apache-maven-3.9.6'     
               // sh 'export M2=$M2_HOME/bin'
