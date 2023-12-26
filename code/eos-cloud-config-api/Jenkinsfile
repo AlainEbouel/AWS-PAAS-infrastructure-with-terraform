@@ -6,8 +6,7 @@ pipeline {
         stage('build'){
             steps{
               sh 'cd code/eos-cloud-config-api'
-            }
-            steps{
+              
               withMaven (
                 // mavenLocalRepo: 'code/eos-cloud-config-api'
               ){
