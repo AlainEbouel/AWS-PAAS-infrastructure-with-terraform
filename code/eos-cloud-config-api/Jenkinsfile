@@ -3,21 +3,10 @@ pipeline {
 
     stages {
         stage('build'){
-          //  environment {
-          //   M2_HOME="/opt/apache-maven-3.9.6"
-          //   M2="/opt/apache-maven-3.9.6/bin"
-          //   PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/opt/apache-maven-3.9.6/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
-          //  }
             steps{
-
-              // sh 'cat ~/.profile'
-              // sh 'export M2_HOME=/opt/apache-maven-3.9.6'     
-              // sh 'export M2=$M2_HOME/bin'
-              // sh 'export PATH=$M2:$PATH'
               sh 'env'
               sh 'cd code/eos-cloud-config-api'
-              sh 'mvn clean verify -f code/eos-cloud-config-api/pom.xml'
-             
+              sh 'mvn clean verify' //-f code/eos-cloud-config-api/pom.xml'             
             }
             
         }
