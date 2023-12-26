@@ -39,7 +39,7 @@ provider "aws" {
 }
 
 provider "kubernetes" {
-  config_path = "~/pratiques/.kube/config"
+  config_path = "~/.kube/config"
 }
 
 terraform {
@@ -66,36 +66,36 @@ module "eks" {
   vpc-cidr        = local.eks-module.vpc-cidr
 }
 
-module "global-infra" {
-  source                      = "../../modules/global-infra"
-  region                      = local.region
-  aws-account                 = local.aws-account
-  module-name                 = local.global-infra-module.module-name
-  env                         = local.env
-  private-subnets             = local.global-infra-module.private-subnets
-  vpc-cidr                    = local.global-infra-module.vpc-cidr
-  eks-cluster-security_group  = can(module.eks.eks-cluster-security_groups) ? module.eks.eks-cluster-security_groups : ""
-  eks-cluster-vpc             = module.eks.eks-cluster-vpc
-  eks-cluster-node-group-role = can(module.eks.eks-cluster-node-group-role) ? module.eks.eks-cluster-node-group-role : ""
-  ecr-repos                   = local.global-infra-module.ecr-repos
-}
-
-module "shopping-portal" {
-  source               = "../../modules/shopping-portal"
-  module-name          = local.eks-module.module-name
-  env                  = local.env
-  eks_ca_cert          = module.eks.eks_ca_cert
-  eks_cluster_endpoint = module.eks.eks-cluster-endpoint
-  eks_cluster_name     = module.eks.eks_cluster_name
-}
-
-# module "jenkins" {
-#   source           = "../../modules/jenkins"
-#   eks_cluster_name = module.eks.eks_cluster_name
-#   module-name      = local.jenkins.module-name
-#   env              = local.env
-#   eks-node-group-name = module.eks.eks-node-group-name
+# module "global-infra" {
+#   source                      = "../../modules/global-infra"
+#   region                      = local.region
+#   aws-account                 = local.aws-account
+#   module-name                 = local.global-infra-module.module-name
+#   env                         = local.env
+#   private-subnets             = local.global-infra-module.private-subnets
+#   vpc-cidr                    = local.global-infra-module.vpc-cidr
+#   eks-cluster-security_group  = can(module.eks.eks-cluster-security_groups) ? module.eks.eks-cluster-security_groups : ""
+#   eks-cluster-vpc             = module.eks.eks-cluster-vpc
+#   eks-cluster-node-group-role = can(module.eks.eks-cluster-node-group-role) ? module.eks.eks-cluster-node-group-role : ""
+#   ecr-repos                   = local.global-infra-module.ecr-repos
 # }
+
+# module "shopping-portal" {
+#   source               = "../../modules/shopping-portal"
+#   module-name          = local.eks-module.module-name
+#   env                  = local.env
+#   eks_ca_cert          = module.eks.eks_ca_cert
+#   eks_cluster_endpoint = module.eks.eks-cluster-endpoint
+#   eks_cluster_name     = module.eks.eks_cluster_name
+# }
+
+module "jenkins" {
+  source           = "../../modules/jenkins"
+  eks_cluster_name = module.eks.eks_cluster_name
+  module-name      = local.jenkins.module-name
+  env              = local.env
+  eks-node-group-name = module.eks.eks-node-group-name
+}
 
 
 # resource "aws_dynamodb_table" "terraform-state-lock" {

@@ -145,7 +145,11 @@ resource "kubernetes_deployment_v1" "jenskins" {
             container_port = 50000
             name           = "jnlpport"
           }
-
+          security_context {
+            privileged = false
+            allow_privilege_escalation = false
+            read_only_root_filesystem = true
+          }
           liveness_probe {
             http_get {
               path = "/login"
@@ -173,7 +177,6 @@ resource "kubernetes_deployment_v1" "jenskins" {
       }
     }
   }
-
 }
 
 resource "kubernetes_service_v1" "jenkins" {
@@ -197,7 +200,6 @@ resource "kubernetes_service_v1" "jenkins" {
     }
     type = "NodePort"
   }
-
 }
 
 resource "kubernetes_ingress_v1" "jenkins" {

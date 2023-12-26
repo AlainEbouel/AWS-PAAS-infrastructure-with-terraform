@@ -83,7 +83,7 @@ resource "aws_eks_cluster" "dev-cluster" {
     }
     resources = ["secrets"]
   }
-
+version = "1.27"
   # Ensure that IAM Role permissions are created before and deleted after EKS Cluster handling.
   # Otherwise, EKS will not be able to properly delete EKS managed EC2 infrastructure such as Security Groups.
   depends_on = [
@@ -101,10 +101,7 @@ resource "null_resource" "set-kubeconfig-file" {
     eks-cluster-id = aws_eks_cluster.dev-cluster.name
   }
   provisioner "local-exec" {
-    command = "aws eks update-kubeconfig --region ${var.region} --name ${aws_eks_cluster.dev-cluster.name} --kubeconfig='~/pratiques/.kube/config'"
-  }
-  provisioner "local-exec" {
-    command = "echo ${jsonencode(aws_eks_cluster.dev-cluster)} > cluster.txt "
+    command = "aws eks update-kubeconfig --region ${var.region} --name ${aws_eks_cluster.dev-cluster.name} --kubeconfig=~/pratiques/.kube/config"
   }
 }
 
