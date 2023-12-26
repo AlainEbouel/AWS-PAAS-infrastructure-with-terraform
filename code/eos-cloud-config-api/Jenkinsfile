@@ -3,10 +3,13 @@ pipeline {
     environment {
       M2_HOME = '/opt/apache-maven-3.9.6'
       M2 = '/opt/apache-maven-3.9.6/bin'
-      // PATH = '/opt/apache-maven-3.9.6:$PATH'
+     
     }
     stages {
         stage('build'){
+           environment {
+            PATH = "/opt/apache-maven-3.9.6:$PATH"
+           }
             steps{
 
               // sh 'cat ~/.profile'
