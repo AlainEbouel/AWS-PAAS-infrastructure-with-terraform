@@ -1,8 +1,7 @@
 pipeline {
     agent {label 'agent'}
-    environment {
-
-    }
+    // environment {
+    // }
     stages {
         stage('build'){
             steps{
