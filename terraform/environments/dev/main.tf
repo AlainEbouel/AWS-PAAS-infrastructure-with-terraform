@@ -28,8 +28,18 @@ locals {
       shopping-Portal = { name = "shopping-portal", mutability = "MUTABLE", scan_on_push = true }
     }
   }
-  jenkins = {
-    module-name = "jenkins"
+  # kubernetes-module = {
+  #   module-name = "kubernetes"
+  # }
+
+  k8s-services = {
+    jenkins = {
+      enable = false
+    }
+    pack_broker = {
+      enable = true
+      service-name = "packbroker"
+    }
   }
 
 }
@@ -89,12 +99,14 @@ module "eks" {
 #   eks_cluster_name     = module.eks.eks_cluster_name
 # }
 
-module "jenkins" {
-  source           = "../../modules/jenkins"
+module "kubernetes" {
+  for_each = { for k,v in local.k8s-services : k => v if v.enable }
+  source           = "../../modules/kubernetes"
   eks_cluster_name = module.eks.eks_cluster_name
-  module-name      = local.jenkins.module-name
+  # module-name      = local.kubernetes.module-name
   env              = local.env
   eks-node-group-name = module.eks.eks-node-group-name
+  service-name = each.value.enable ? each.value.service-name : ""
 }
 
 

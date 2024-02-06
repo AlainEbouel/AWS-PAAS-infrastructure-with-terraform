@@ -1,16 +1,16 @@
 
-resource "kubernetes_namespace_v1" "jenkins" {
+resource "kubernetes_namespace_v1" "eks" {
   metadata {
 
     labels = {
-      app = var.module-name
+      app = var.service-name
     }
-    name = var.module-name
+    name = var.service-name
   }
 
 }
 
-resource "kubernetes_storage_class_v1" "jenkins" {
+resource "kubernetes_storage_class_v1" "eks" {
   metadata {
     name = "ebs"
   }
@@ -25,32 +25,24 @@ data "aws_instances" "node-group-instances" {
   instance_state_names = ["running"]
 }
 
-# resource "kubernetes_namespace_v1" "name" {
-#   metadata {
-#     name = "test"
-#   }
-#   provisioner "local-exec" {
-#     command = "echo ${jsonencode(data.aws_instances.node-group-instances)} > debug.txt"
-#   }
-# }
-
 data "aws_instance" "node-group-instance" {
   for_each = toset(data.aws_instances.node-group-instances.ids)
   instance_id = each.value
 }
-resource "kubernetes_persistent_volume_v1" "jenkins" {
+
+resource "kubernetes_persistent_volume_v1" "eks" {
   metadata {
-    name = var.module-name
+    name = var.service-name
     labels = {
-      app  = var.module-name
+      app  = var.service-name
       type = "local"
     }
   }
   spec {
-    storage_class_name = kubernetes_storage_class_v1.jenkins.metadata.0.name
+    storage_class_name = kubernetes_storage_class_v1.eks.metadata.0.name
     claim_ref {
-      name      = var.module-name
-      namespace = kubernetes_namespace_v1.jenkins.metadata.0.name
+      name      = var.service-name
+      namespace = kubernetes_namespace_v1.eks.metadata.0.name
     }
     capacity = {
       storage = "5Gi"
@@ -76,45 +68,45 @@ resource "kubernetes_persistent_volume_v1" "jenkins" {
   }
 }
 
-resource "kubernetes_persistent_volume_claim_v1" "jenkins" {
+resource "kubernetes_persistent_volume_claim_v1" "eks" {
   metadata {
-    name      = var.module-name
-    namespace = kubernetes_namespace_v1.jenkins.metadata.0.name
+    name      = var.service-name
+    namespace = kubernetes_namespace_v1.eks.metadata.0.name
   }
   spec {
-    storage_class_name = kubernetes_storage_class_v1.jenkins.metadata.0.name
+    storage_class_name = kubernetes_storage_class_v1.eks.metadata.0.name
     access_modes       = ["ReadWriteOnce"]
     resources {
       requests = {
         storage = "3Gi"
       }
     }
-    volume_name = kubernetes_persistent_volume_v1.jenkins.metadata.0.name
+    volume_name = kubernetes_persistent_volume_v1.eks.metadata.0.name
   }
 }
 
-resource "kubernetes_deployment_v1" "jenskins" {
+resource "kubernetes_deployment_v1" "eks" {
   metadata {
-    name = var.module-name
+    name = var.service-name
     labels = {
-      app = var.module-name
+      app = var.service-name
     }
-    namespace = kubernetes_namespace_v1.jenkins.metadata.0.name
+    namespace = kubernetes_namespace_v1.eks.metadata.0.name
   }
 
   spec {
-    replicas = 1
+    replicas = 2
 
     selector {
       match_labels = {
-        app = var.module-name
+        app = var.service-name
       }
     }
 
     template {
       metadata {
         labels = {
-          app = var.module-name
+          app = var.service-name
         }
       }
 
@@ -123,66 +115,67 @@ resource "kubernetes_deployment_v1" "jenskins" {
           fs_group    = 1000
           run_as_user = 1000
         }
+        image_pull_secrets {
+          name = kubernetes_secret_v1.packbroker-image.metadata.0.name
+        }
         container {
-          image = "jenkins/jenkins:lts"
-          name  = var.module-name
+          image = "244586165116.dkr.ecr.ca-central-1.amazonaws.com/pack_broker:1.0.0"
+          name  = var.service-name
 
           resources {
             limits = {
-              cpu    = "1000m"
-              memory = "2Gi"
+              cpu    = "0.5"
+              memory = "512Mi"
             }
             requests = {
-              cpu    = "500m"
-              memory = "500Mi"
+              cpu    = "0.2"
+              memory = "64Mi"
             }
           }
           port {
-            container_port = 8080
+            container_port = 9292
             name           = "httpport"
           }
-          port {
-            container_port = 50000
-            name           = "jnlpport"
+          env {
+            name = "POSTGRES_PASSWORD"
+            value = "adminpass"
           }
-          security_context {
-            privileged = false
-            allow_privilege_escalation = false
-            read_only_root_filesystem = true
+          env {
+            name = "POSTGRES_USER"
+            value = "eks-node"
           }
-          liveness_probe {
-            http_get {
-              path = "/login"
-              port = 8080
-            }
-            initial_delay_seconds = 60
-            period_seconds        = 10
-            timeout_seconds       = 5
-            failure_threshold     = 3
+          env {
+            name = "POSTGRES_DB"
+            value = "packbroker"
           }
+          # security_context {
+          #   privileged = false
+          #   allow_privilege_escalation = false
+          #   read_only_root_filesystem = true
+          # }
+          # liveness_probe {
+          #   http_get {
+          #     path = "/login"
+          #     port = 9292
+          #   }
+          #   initial_delay_seconds = 60
+          #   period_seconds        = 10
+          #   timeout_seconds       = 5
+          #   failure_threshold     = 3
+          # }
 
-          volume_mount {
-            name       = "${var.module-name}-data"
-            mount_path = "/var/jenkins_home"
-          }
         }
-        service_account_name = kubernetes_service_account_v1.jenkins.metadata.0.name
-        volume {
-          name = "${var.module-name}-data"
-          persistent_volume_claim {
-            claim_name = kubernetes_persistent_volume_claim_v1.jenkins.metadata.0.name
-          }
-        }
-
+        service_account_name = kubernetes_service_account_v1.eks.metadata.0.name
+       
       }
     }
   }
 }
 
-resource "kubernetes_service_v1" "jenkins" {
+resource "kubernetes_service_v1" "eks" {
   metadata {
-    name      = var.module-name
-    namespace = kubernetes_namespace_v1.jenkins.metadata.0.name
+    name      = var.service-name
+    namespace = kubernetes_namespace_v1.eks.metadata.0.name
     annotations = {
       "prometheus.io/scrape" = "true"
       "prometheus.io/path"   = "/"
@@ -191,21 +184,22 @@ resource "kubernetes_service_v1" "jenkins" {
   }
   spec {
     selector = {
-      app = var.module-name
+      app = var.service-name
     }
     port {
       port        = 80
-      target_port = 8080
+      target_port = 9292
       protocol = "TCP"
     }
     type = "NodePort"
+    
   }
 }
 
-resource "kubernetes_ingress_v1" "jenkins" {
+resource "kubernetes_ingress_v1" "eks" {
   metadata {
-    namespace = kubernetes_namespace_v1.jenkins.metadata.0.name
-    name = var.module-name
+    namespace = kubernetes_namespace_v1.eks.metadata.0.name
+    name = var.service-name
     annotations = {
       "kubernetes.io/ingress.class": "alb"
       "alb.ingress.kubernetes.io/scheme": "internet-facing"
@@ -214,7 +208,7 @@ resource "kubernetes_ingress_v1" "jenkins" {
   spec {
     default_backend {
       service {
-        name = kubernetes_service_v1.jenkins.metadata.0.name
+        name = kubernetes_service_v1.eks.metadata.0.name
         port {
           number = 80
         }
@@ -226,7 +220,7 @@ resource "kubernetes_ingress_v1" "jenkins" {
         path {
           backend {
             service {
-              name = kubernetes_service_v1.jenkins.metadata.0.name
+              name = kubernetes_service_v1.eks.metadata.0.name
               port {
                 number = 80
               }
@@ -253,7 +247,7 @@ resource "kubernetes_ingress_v1" "jenkins" {
 # resource "kubernetes_deployment_v1" "name" {
 #   metadata {
 #     name = "game"
-#     namespace = kubernetes_namespace_v1.jenkins.metadata.0.name
+#     namespace = kubernetes_namespace_v1.eks.metadata.0.name
 #   }
 #   spec {
 #     selector {
@@ -285,7 +279,7 @@ resource "kubernetes_ingress_v1" "jenkins" {
 # resource "kubernetes_service_v1" "name" {
 #   metadata {
 #     name = "game"
-#     namespace = kubernetes_namespace_v1.jenkins.metadata.0.name
+#     namespace = kubernetes_namespace_v1.eks.metadata.0.name
 #   }
 #   spec {
 #     port {
@@ -303,7 +297,7 @@ resource "kubernetes_ingress_v1" "jenkins" {
 # resource "kubernetes_ingress_v1" "name" {
 #   metadata {
 #     name = "game"
-#     namespace = kubernetes_namespace_v1.jenkins.metadata.0.name
+#     namespace = kubernetes_namespace_v1.eks.metadata.0.name
 #     annotations = {
 #       "alb.ingress.kubernetes.io/scheme" = "internet-facing"
 #       # "alb.ingress.kubernetes.io/target-type" = "ip"
@@ -330,3 +324,5 @@ resource "kubernetes_ingress_v1" "jenkins" {
 #    } 
 #   }
 # }
+
+     
