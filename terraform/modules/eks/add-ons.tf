@@ -1,4 +1,4 @@
-
+/*------  EBS CSI Driver ------- */
 data "tls_certificate" "eks-cluster" {
   url = aws_eks_cluster.dev-cluster.identity[0]["oidc"][0]["issuer"]
 }
@@ -51,3 +51,41 @@ resource "aws_eks_addon" "ebs-csi" {
   /*# Temp config because I have to recreate the eks cluster many times.*/
   depends_on = [ null_resource.set-kubeconfig-file ]
 }
+
+
+/*------ CloudWatch Observability ------- */
+
+resource "aws_iam_role" "eks-worker-node" {
+  name = "eks-worker-node"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "CloudWatchAgentServerPolicy" {
+  role = aws_iam_role.eks-worker-node.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "AWSXrayWriteOnlyAccess" {
+  role = aws_iam_role.eks-worker-node.name
+  policy_arn = "arn:aws:iam::aws:policy/AWSXrayWriteOnlyAccess"
+}
+
+resource "aws_eks_addon" "cloudWatch" {
+  addon_name   = "amazon-cloudwatch-observability"
+  cluster_name = "dev-cluster"
+  service_account_role_arn = aws_iam_role.eks-worker-node.arn
+}
+
