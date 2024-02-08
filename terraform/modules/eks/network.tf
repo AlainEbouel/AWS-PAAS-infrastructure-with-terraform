@@ -58,7 +58,7 @@ resource "aws_subnet" "private-eks-cluster" {
 
   tags = {
     "kubernetes.io/role/internal-elb" = "1"
-    "name" = "${var.module-name}-${var.env}-${var.public-subnets[each.key].name}"
+    "name" = "${var.module-name}-${var.env}-${var.private-subnets[each.key].name}"
   }
 }
 

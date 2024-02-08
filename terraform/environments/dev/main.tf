@@ -42,6 +42,15 @@ locals {
     }
   }
 
+  microsoft-ad ={
+    vpc-cidr    = "10.0.0.0/16"
+    private-subnets = {
+      "subnet1" = { "name" = "private-1", "cidr_block" = "10.0.0.0/24", "AZ" = "ca-central-1a" },
+      "subnet2" = { "name" = "private-2", "cidr_block" = "10.0.1.0/24", "AZ" = "ca-central-1b" }
+    }
+    module-name = "microsoft-ad"
+  }
+
 }
 
 provider "aws" {
@@ -63,6 +72,15 @@ terraform {
       version = "2.23.0"
     }
   }
+}
+module "microsoft-ad" {
+  source = "../../modules/microsoft-ad"
+  env             = local.env
+  region          = local.region
+  aws-account     = local.aws-account
+  private-subnets = local.microsoft-ad.private-subnets
+  vpc-cidr        = local.microsoft-ad.vpc-cidr
+  module-name     = local.eks-module.module-name
 }
 
 module "eks" {
